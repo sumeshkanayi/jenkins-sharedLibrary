@@ -4,7 +4,7 @@ import hudson.model.Items
 
 def call(String projectName) {
 
-    projectName="global/us/bdf/com.rxcorp.sample"
+    
     splitProjectNameToPathAndRepo=projectName.tokenize("/")
     repoName=splitProjectNameToPathAndRepo[-1]
     splitProjectNameToPathAndRepo.pop()
