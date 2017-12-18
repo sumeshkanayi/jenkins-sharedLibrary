@@ -3,7 +3,7 @@ import jenkins.model.Jenkins
 import hudson.model.Item
 import hudson.model.Items
 
-class Utilities {
+class seedjob {
 
     def create_multibranch_job(String projectName) {
 
