@@ -1,3 +1,4 @@
+package seed.devops
 import jenkins.model.Jenkins
 import hudson.model.Item
 import hudson.model.Items
