@@ -3,62 +3,64 @@ import jenkins.model.Jenkins
 import hudson.model.Item
 import hudson.model.Items
 
-def create_multibranch_job(String projectName) {
+class Utilities {
 
-    projectName="global/us/bdf/com.rxcorp.sample"
-    splitProjectNameToPathAndRepo=projectName.tokenize("/")
-    repoName=splitProjectNameToPathAndRepo[-1]
-    splitProjectNameToPathAndRepo.pop()
-    projectRoot=splitProjectNameToPathAndRepo.join("/")
+    def create_multibranch_job(String projectName) {
 
-
-    String gitHost = 'ssh://git@git-sb.sumesh.com'
-
+        projectName = "global/us/bdf/com.rxcorp.sample"
+        splitProjectNameToPathAndRepo = projectName.tokenize("/")
+        repoName = splitProjectNameToPathAndRepo[-1]
+        splitProjectNameToPathAndRepo.pop()
+        projectRoot = splitProjectNameToPathAndRepo.join("/")
 
 
-    String FOLDER_CREDENTIALS_PROPERTY_NAME = 'com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider$FolderCredentialsProperty'
-
-    Node folderCredentialsPropertyNode
-    Item myFolder = Jenkins.instance.getItem(projectRoot)
-    if (myFolder) {
-        def folderCredentialsProperty = myFolder.getProperties().getDynamic(FOLDER_CREDENTIALS_PROPERTY_NAME)
-        if (folderCredentialsProperty) {
-            String xml = Items.XSTREAM2.toXML(folderCredentialsProperty)
-            folderCredentialsPropertyNode = new XmlParser().parseText(xml)
-        }
-    } else {
+        String gitHost = 'ssh://git@git-sb.sumesh.com'
 
 
-        projectRootArray = projectRoot.split("/")
 
-        String folderWalk = ""
-        projectRootArray.each {
-            folderWalk = folderWalk + "/" + it
-            folderPresence = Jenkins.instance.getItem(folderWalk)
-            if (folderPresence == null) {
-                folder(folderWalk) {
+        String FOLDER_CREDENTIALS_PROPERTY_NAME = 'com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider$FolderCredentialsProperty'
+
+        Node folderCredentialsPropertyNode
+        Item myFolder = Jenkins.instance.getItem(projectRoot)
+        if (myFolder) {
+            def folderCredentialsProperty = myFolder.getProperties().getDynamic(FOLDER_CREDENTIALS_PROPERTY_NAME)
+            if (folderCredentialsProperty) {
+                String xml = Items.XSTREAM2.toXML(folderCredentialsProperty)
+                folderCredentialsPropertyNode = new XmlParser().parseText(xml)
+            }
+        } else {
+
+
+            projectRootArray = projectRoot.split("/")
+
+            String folderWalk = ""
+            projectRootArray.each {
+                folderWalk = folderWalk + "/" + it
+                folderPresence = Jenkins.instance.getItem(folderWalk)
+                if (folderPresence == null) {
+                    folder(folderWalk) {
+
+
+                    }
 
 
                 }
 
 
             }
-
-
         }
-    }
 
 
-    folder(projectRoot) {
-        if (folderCredentialsPropertyNode) {
-            configure { project ->
-                project / 'properties' << folderCredentialsPropertyNode
+        folder(projectRoot) {
+            if (folderCredentialsPropertyNode) {
+                configure { project ->
+                    project / 'properties' << folderCredentialsPropertyNode
+                }
+                displayName projectRoot
+                description 'Build jobs for building ' + projectRoot + 'artifacts'
+
             }
-            displayName projectRoot
-            description 'Build jobs for building ' + projectRoot + 'artifacts'
-
         }
-    }
 
 
         multibranchPipelineJob(projectRoot + '/' + repoName) {
@@ -76,3 +78,4 @@ def create_multibranch_job(String projectName) {
         }
     }
 
+}
